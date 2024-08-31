@@ -110,7 +110,7 @@ class Fighter extends Sprite {
     }
   }
 
-  attack() {
+  attack1() {
     if (!gameOver) {
       this.switchSprite("attack1");
       this.isAttacking = true;
@@ -120,8 +120,18 @@ class Fighter extends Sprite {
     }
   }
 
+  attack2() {
+    if (!gameOver) {
+      this.switchSprite("attack2");
+      this.isAttacking = true;
+      setTimeout(() => {
+        this.isAttacking = false;
+      }, 100);
+    }
+  }
+
   switchSprite(sprite) {
-    if (this.image === this.sprites.attack1.image && this.currentFrame < this.sprites.attack1.frames - 1) {
+    if (this.image === this.sprites.attack1.image && this.currentFrame < this.sprites.attack1.frames - 1 || this.image === this.sprites.attack2.image && this.currentFrame < this.sprites.attack2.frames - 1) {
       return; 
   }
     switch (sprite) {
@@ -157,6 +167,13 @@ class Fighter extends Sprite {
           if (this.image !== this.sprites.attack1.image) {
             this.image = this.sprites.attack1.image;
             this.frames = this.sprites.attack1.frames;
+            this.currentFrame = 0;
+          }
+        break;
+        case "attack2":
+          if (this.image !== this.sprites.attack2.image) {
+            this.image = this.sprites.attack2.image;
+            this.frames = this.sprites.attack2.frames;
             this.currentFrame = 0;
           }
     }

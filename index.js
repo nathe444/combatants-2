@@ -57,6 +57,10 @@ const player = new Fighter({
     attack1:{
       imageSrc:'./assets/player1/Attack1.png',
       frames:6
+    },
+    attack2:{
+      imageSrc:'./assets/player1/Attack2.png',
+      frames:6
     }
   }
 });
@@ -172,7 +176,10 @@ window.addEventListener("keydown", (event) => {
       player.velocity.y = -25;
       break;
     case " ":
-      player.attack();
+      player.attack1();
+      break;
+    case 'q':
+      player.attack2();
       break;
     case "ArrowRight":
       keys.ArrowRight.ispressed = true;
