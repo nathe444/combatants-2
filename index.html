@@ -14,17 +14,19 @@
         display: flex;
         justify-content: center;
         padding: 10px 0px;
+        height: 100vh;
+        align-items: center;
       }
 
       .container {
         position: relative;
         display: inline-block;
         width: 1024px;
+        height: 576px;
       }
 
       .bar {
-        background-color: black;
-        position: relative;
+        position: absolute;
         display: flex;
         align-items: center;
         width: 100%;
@@ -65,6 +67,18 @@
         color: white;
         font-size: 18px;
       }
+      .tie {
+        font-size: 50px;
+        color: gray;
+        position: absolute;
+        display: none;
+        justify-content: center;
+        top: 50%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
     </style>
   </head>
   <body>
@@ -73,13 +87,18 @@
         <div class="parent playerParent">
           <div id="playerHealth" class="player"></div>
         </div>
-        <div class="timer" id="timer">1000</div>
+        <div class="timer" id="timer">600</div>
         <div class="parent">
           <div id="enemyHealth" class="enemy"></div>
         </div>
       </div>
       <canvas width="1024" height="576"></canvas>
+      <div class="tie" id="tie">TIE</div>
+      <div class="tie" id="player1">PLAYER 1 WON</div>
+      <div class="tie" id="player2">PLAYER 2 WON</div>
     </div>
+    <script src="./js/utils.js"></script>
+    <script src="/js/classes.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
