@@ -33,7 +33,7 @@ const shop = new Sprite(
 const player = new Fighter({
   position: { x: 120, y: 0 },
   velocity: { x: 0, y: 0 },
-  offset: { x: 260, y: 180 },
+  offset: { x:255, y: 180 },
   imageSrc:'./assets/player1/Idle.png',
   frames:8,
   scale:3,
@@ -62,17 +62,47 @@ const player = new Fighter({
       imageSrc:'./assets/player1/Attack2.png',
       frames:6
     }
-  }
+  },
+  frameHold:5,
+  attackBox : { offset: { x: 80, y: 70 }, width: 225, height:50 }
 });
 
 const enemy = new Fighter({
-  position: { x: 450, y:0 },
+  position: { x: 850, y:0 },
   velocity: { x: 0, y: 0 },
   color: "blue",
-  offset: { x: 10, y:200 },
+  offset: { x:255, y:200 },
   imageSrc:'./assets/player2/Idle.png',
   frames:4,
-  scale:3
+  scale:3,
+  sprites:{
+    idle:{
+      imageSrc:'./assets/player2/Idle.png',
+      frames:4,
+    },
+    run:{
+      imageSrc:'./assets/player2/Run.png',
+      frames:8,
+    },
+    jump:{
+      imageSrc:'./assets/player2/Jump.png',
+      frames:2
+    },
+    fall:{
+      imageSrc:'./assets/player2/Fall.png',
+      frames:2
+    },
+    attack1:{
+      imageSrc:'./assets/player2/Attack1.png',
+      frames:4
+    },
+    attack2:{
+      imageSrc:'./assets/player2/Attack2.png',
+      frames:4
+    }
+  },
+  frameHold:8,
+  attackBox : { offset: { x: -210, y: 70 }, width: 225, height:50 }
 });
 
 const keys = {
@@ -94,7 +124,11 @@ function animate() {
   background.update();
   shop.update();
   player.update();
-  // enemy.update();
+  enemy.update();
+
+  // window.addEventListener('keydown',(e)=>{
+  //   console.log(e.key);
+  // })
 
   player.velocity.x = 0;
   if (keys.a.ispressed && player.lastkey === "a") {
@@ -117,15 +151,25 @@ function animate() {
   enemy.velocity.x = 0;
   if (keys.ArrowLeft.ispressed && enemy.lastkey === "ArrowLeft") {
     enemy.velocity.x = -5;
+    enemy.switchSprite('run');
   } else if (keys.ArrowRight.ispressed && enemy.lastkey === "ArrowRight") {
     enemy.velocity.x = 5;
+    enemy.switchSprite('run');
+  } else{
+    enemy.switchSprite('idle')
+  }
+
+  if(enemy.velocity.y < 0){
+    enemy.switchSprite('jump');
+  } else if(enemy.velocity.y >0){
+    enemy.switchSprite('fall')
   }
 
 
 
   if (
     rectangleCollision({ rectangle1: player, rectangle2: enemy }) &&
-    player.isAttacking
+    player.isAttacking && player.currentFrame === 4
   ) {
     player.isAttacking = false;
     enemy.health = Math.max(0, enemy.health - 10);
@@ -136,12 +180,15 @@ function animate() {
       declareWinner("player1");
       return;
     }
+  }
 
+  if(player.isAttacking && player.currentFrame === 4){
+    player.isAttacking = false
   }
 
   if (
     rectangleCollision({ rectangle1: enemy, rectangle2: player }) &&
-    enemy.isAttacking
+    enemy.isAttacking && enemy.currentFrame ===2
   ) {
     enemy.isAttacking = false;
     player.health = Math.max(0, player.health - 10);
@@ -152,6 +199,9 @@ function animate() {
       declareWinner("player2");
       return;
     }
+  }
+  if(enemy.isAttacking && enemy.currentFrame === 2){
+    enemy.isAttacking = false
   }
 }
 
@@ -175,7 +225,7 @@ window.addEventListener("keydown", (event) => {
     case "w":
       player.velocity.y = -25;
       break;
-    case " ":
+    case 'e':
       player.attack1();
       break;
     case 'q':
@@ -190,10 +240,13 @@ window.addEventListener("keydown", (event) => {
       enemy.lastkey = "ArrowLeft";
       break;
     case "ArrowUp":
-      enemy.velocity.y = -20;
+      enemy.velocity.y = -25;
       break;
-    case "ArrowDown":
-      enemy.attack();
+    case '\\':
+      enemy.attack1();
+      break;
+    case "End":
+      enemy.attack2();
       break;
   }
 });

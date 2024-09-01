@@ -18,18 +18,31 @@ class Sprite {
   }
 
   draw() {
-    c.drawImage(
-      this.image,
-      this.currentFrame * (this.image.width / this.frames),
-      0,
-      this.image.width / this.frames,
-      this.image.height,
-      this.position.x - this.offset.x,
-      this.position.y - this.offset.y,
-      (this.image.width / this.frames) * this.scale,
-      this.image.height * this.scale
-    );
+  c.save(); // Save the current canvas state
+
+  // Check if the image needs to be flipped horizontally
+  if (this.isFlipped) {
+    c.translate(this.position.x + (this.image.width / this.frames) * this.scale - this.offset.x, this.position.y - this.offset.y);
+    c.scale(-1, 1); // Flip the context horizontally
+  } else {
+    c.translate(this.position.x - this.offset.x, this.position.y - this.offset.y);
   }
+
+  c.drawImage(
+    this.image,
+    this.currentFrame * (this.image.width / this.frames),
+    0,
+    this.image.width / this.frames,
+    this.image.height,
+    0, // Draw from the current translated position
+    0,
+    (this.image.width / this.frames) * this.scale,
+    this.image.height * this.scale
+  );
+
+  c.restore(); // Restore the canvas state
+}
+
 
   animateFrames() {
     this.framesElapsed++;
@@ -57,30 +70,29 @@ class Fighter extends Sprite {
     frames = 1,
     offset,
     sprites,
+    frameHold,
+    attackBox = { offset: { x:0, y: 0 }, width: 250, height: 60 }
   }) {
     super({ position, imageSrc, scale, frames, offset });
     this.velocity = velocity;
     this.height = 200;
     this.width = 70;
     this.lastkey;
-    this.offset = {
-      x: offset.x,
-      y: offset.y,
-    };
     this.attackBox = {
       position: {
-        x: this.position.x,
-        y: this.position.y,
+        x: this.position.x + attackBox.offset.x,
+        y: this.position.y + attackBox.offset.y
       },
-      width: 120,
-      height: 60,
+      offset: attackBox.offset,
+      width: attackBox.width,
+      height: attackBox.height
     };
     this.color = color;
     this.isAttacking;
     this.health = 100;
     this.currentFrame = 0;
     this.framesElapsed = 0;
-    this.frameHold = 6;
+    this.frameHold = frameHold;
     this.sprites = sprites;
 
     for (const sprite in this.sprites) {
@@ -91,8 +103,16 @@ class Fighter extends Sprite {
   update() {
     this.draw();
     this.animateFrames();
-    this.attackBox.position.x = this.position.x + this.offset.x;
-    this.attackBox.position.y = this.position.y;
+    this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+    this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
+
+    c.fillRect(
+      this.attackBox.position.x,
+      this.attackBox.position.y,
+      this.attackBox.width,
+      this.attackBox.height
+    )
+
     this.position.x += this.velocity.x;
 
     if (this.position.x < 0) {
@@ -114,9 +134,6 @@ class Fighter extends Sprite {
     if (!gameOver) {
       this.switchSprite("attack1");
       this.isAttacking = true;
-      setTimeout(() => {
-        this.isAttacking = false;
-      }, 100);
     }
   }
 
@@ -124,9 +141,6 @@ class Fighter extends Sprite {
     if (!gameOver) {
       this.switchSprite("attack2");
       this.isAttacking = true;
-      setTimeout(() => {
-        this.isAttacking = false;
-      }, 100);
     }
   }
 
