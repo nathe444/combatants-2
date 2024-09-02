@@ -61,6 +61,14 @@ const player = new Fighter({
     attack2:{
       imageSrc:'./assets/player1/Attack2.png',
       frames:6
+    },
+    takeHit:{
+      imageSrc:'./assets/player1/Take hit.png',
+      frames:4
+    },
+    death:{
+      imageSrc:'./assets/player1/Death.png',
+      frames:6
     }
   },
   frameHold:5,
@@ -99,6 +107,14 @@ const enemy = new Fighter({
     attack2:{
       imageSrc:'./assets/player2/Attack2.png',
       frames:4
+    },
+    takeHit:{
+      imageSrc:'./assets/player2/Take hit.png',
+      frames:3
+    },
+    death:{
+      imageSrc:'./assets/player2/Death.png',
+      frames:7
     }
   },
   frameHold:8,
@@ -115,7 +131,6 @@ const keys = {
 };
 
 
-
 function animate() {
   if (gameOver) return; 
   window.requestAnimationFrame(animate);
@@ -126,9 +141,6 @@ function animate() {
   player.update();
   enemy.update();
 
-  // window.addEventListener('keydown',(e)=>{
-  //   console.log(e.key);
-  // })
 
   player.velocity.x = 0;
   if (keys.a.ispressed && player.lastkey === "a") {
@@ -165,19 +177,21 @@ function animate() {
     enemy.switchSprite('fall')
   }
 
-
-
   if (
     rectangleCollision({ rectangle1: player, rectangle2: enemy }) &&
     player.isAttacking && player.currentFrame === 4
   ) {
+    enemy.switchSprite("takeHit");
     player.isAttacking = false;
     enemy.health = Math.max(0, enemy.health - 10);
     updateHealthBar("enemyHealth", enemy.health);
-
     // Check if enemy's health reaches zero
     if (enemy.health <= 0) {
-      declareWinner("player1");
+      enemy.switchSprite('death');
+      setTimeout(() => {
+        declareWinner("player1");   
+      },1100)
+        
       return;
     }
   }
@@ -188,27 +202,37 @@ function animate() {
 
   if (
     rectangleCollision({ rectangle1: enemy, rectangle2: player }) &&
-    enemy.isAttacking && enemy.currentFrame ===2
+    enemy.isAttacking && enemy.currentFrame === 2
   ) {
+    player.switchSprite("takeHit");
     enemy.isAttacking = false;
     player.health = Math.max(0, player.health - 10);
     updateHealthBar("playerHealth", player.health);
 
     // Check if player's health reaches zero
     if (player.health <= 0) {
-      declareWinner("player2");
+      player.switchSprite('death');
+      setTimeout(() => {
+        declareWinner("player2");
+      },600)
       return;
     }
   }
   if(enemy.isAttacking && enemy.currentFrame === 2){
     enemy.isAttacking = false
   }
+
+  if(enemy.health <= 0 ){
+    enemy.switchSprite('death');
+  }
+
+  if(player.health <= 0 ){
+    player.switchSprite('death');
+  }
 }
 
 decreaseTimer();
 animate();
-
-
 
 window.addEventListener("keydown", (event) => {
   if (gameOver) return; 

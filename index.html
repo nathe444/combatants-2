@@ -2,27 +2,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Game Interface</title>
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
 
       body {
         display: flex;
         justify-content: center;
-        padding: 10px 0px;
-        height: 100vh;
         align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e1f29 40%, #272b38);
+        color: #fff;
       }
 
       .container {
         position: relative;
-        display: inline-block;
         width: 1024px;
         height: 576px;
+        border: 2px solid #2a2e37;
+        border-radius: 10px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
       }
 
       .bar {
@@ -31,13 +36,16 @@
         align-items: center;
         width: 100%;
         height: 80px;
-        padding: 50px 20px;
+        padding: 20px;
+        top: 10px;
+        justify-content: space-between;
       }
 
       .parent {
-        width: 100%;
-        height: 50px;
-        background-color: rgb(66, 80, 80);
+        width: 45%;
+        height: 20px;
+        background-color: #10131a;
+        overflow: hidden;
       }
 
       .playerParent {
@@ -47,37 +55,57 @@
 
       .player,
       .enemy {
-        background-color: green;
-        width: 100%;
         height: 100%;
+        transition: width 0.5s ease;
       }
 
       .player {
+        background: linear-gradient(to right, #4caf50, #81c784);
         transform-origin: left;
+        height: 100%;
+        width: 100%;
+        transition: width 0.5s ease;
+      }
+
+      .enemy {
+        background: linear-gradient(to right, #4caf50, #81c784);
+        transform-origin: right;
+        height: 100%;
+        width: 100%;
+        transition: width 0.5s ease;
       }
 
       .timer {
-        background-color: rgb(29, 44, 44);
-        height: 70px;
-        flex-shrink: 0;
-        width: 150px;
+        background-color: #55657d;
+        height: 50px;
+        width: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
+        border-radius: 5px;
         color: white;
-        font-size: 18px;
+        font-size: 20px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
-      .tie {
-        font-size: 50px;
-        color: gray;
+
+      .tie,
+      .tie#player1,
+      .tie#player2 {
+        font-size: 40px;
+        color: #f5f5f5;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+        padding: 20px 40px;
         position: absolute;
         display: none;
         justify-content: center;
+        align-items: center;
         top: 50%;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
         font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
       }
     </style>
   </head>
@@ -87,7 +115,7 @@
         <div class="parent playerParent">
           <div id="playerHealth" class="player"></div>
         </div>
-        <div class="timer" id="timer">600</div>
+        <div class="timer" id="timer">90</div>
         <div class="parent">
           <div id="enemyHealth" class="enemy"></div>
         </div>

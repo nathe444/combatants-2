@@ -18,31 +18,38 @@ class Sprite {
   }
 
   draw() {
-  c.save(); // Save the current canvas state
+    c.save(); 
 
-  // Check if the image needs to be flipped horizontally
-  if (this.isFlipped) {
-    c.translate(this.position.x + (this.image.width / this.frames) * this.scale - this.offset.x, this.position.y - this.offset.y);
-    c.scale(-1, 1); // Flip the context horizontally
-  } else {
-    c.translate(this.position.x - this.offset.x, this.position.y - this.offset.y);
+    // Check if the image needs to be flipped horizontally
+    if (this.isFlipped) {
+      c.translate(
+        this.position.x +
+          (this.image.width / this.frames) * this.scale -
+          this.offset.x,
+        this.position.y - this.offset.y
+      );
+      c.scale(-1, 1); // Flip the context horizontally
+    } else {
+      c.translate(
+        this.position.x - this.offset.x,
+        this.position.y - this.offset.y
+      );
+    }
+
+    c.drawImage(
+      this.image,
+      this.currentFrame * (this.image.width / this.frames),
+      0,
+      this.image.width / this.frames,
+      this.image.height,
+      0, // Draw from the current translated position
+      0,
+      (this.image.width / this.frames) * this.scale,
+      this.image.height * this.scale
+    );
+
+    c.restore(); // Restore the canvas state
   }
-
-  c.drawImage(
-    this.image,
-    this.currentFrame * (this.image.width / this.frames),
-    0,
-    this.image.width / this.frames,
-    this.image.height,
-    0, // Draw from the current translated position
-    0,
-    (this.image.width / this.frames) * this.scale,
-    this.image.height * this.scale
-  );
-
-  c.restore(); // Restore the canvas state
-}
-
 
   animateFrames() {
     this.framesElapsed++;
@@ -71,7 +78,7 @@ class Fighter extends Sprite {
     offset,
     sprites,
     frameHold,
-    attackBox = { offset: { x:0, y: 0 }, width: 250, height: 60 }
+    attackBox = { offset: { x: 0, y: 0 }, width: 250, height: 60 },
   }) {
     super({ position, imageSrc, scale, frames, offset });
     this.velocity = velocity;
@@ -81,11 +88,11 @@ class Fighter extends Sprite {
     this.attackBox = {
       position: {
         x: this.position.x + attackBox.offset.x,
-        y: this.position.y + attackBox.offset.y
+        y: this.position.y + attackBox.offset.y,
       },
       offset: attackBox.offset,
       width: attackBox.width,
-      height: attackBox.height
+      height: attackBox.height,
     };
     this.color = color;
     this.isAttacking;
@@ -106,12 +113,12 @@ class Fighter extends Sprite {
     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
     this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
 
-    c.fillRect(
-      this.attackBox.position.x,
-      this.attackBox.position.y,
-      this.attackBox.width,
-      this.attackBox.height
-    )
+    // c.fillRect(
+    //   this.attackBox.position.x,
+    //   this.attackBox.position.y,
+    //   this.attackBox.width,
+    //   this.attackBox.height
+    // )
 
     this.position.x += this.velocity.x;
 
@@ -122,6 +129,13 @@ class Fighter extends Sprite {
     }
 
     this.position.y += this.velocity.y;
+
+    // Bounce effect when reaching the top threshold
+    if (this.position.y < 0) {
+      this.position.y = 0; 
+      this.velocity.y = Math.abs(this.velocity.y) * 0.00001; // Reverse direction and apply damping
+  }
+
     if (this.position.y + this.height >= canvas.height) {
       this.velocity.y = 0;
       this.position.y = canvas.height - this.height;
@@ -145,9 +159,32 @@ class Fighter extends Sprite {
   }
 
   switchSprite(sprite) {
-    if (this.image === this.sprites.attack1.image && this.currentFrame < this.sprites.attack1.frames - 1 || this.image === this.sprites.attack2.image && this.currentFrame < this.sprites.attack2.frames - 1) {
-      return; 
-  }
+    if (
+      this.image === this.sprites.death.image
+    ) {
+      if (this.currentFrame === this.sprites.death.frames - 1) {
+        this.dead = true;
+      }
+      return;
+    }
+
+    // override all animations with attack animation
+    if (
+      (this.image === this.sprites.attack1.image &&
+        this.currentFrame < this.sprites.attack1.frames - 1) ||
+      (this.image === this.sprites.attack2.image &&
+        this.currentFrame < this.sprites.attack2.frames - 1)
+    ) {
+      return;
+    }
+    // override all animations with take hit animation
+    if (
+      this.image === this.sprites.takeHit.image &&
+      this.currentFrame < this.sprites.takeHit.frames - 1
+    ) {
+      return;
+    }
+
     switch (sprite) {
       case "idle":
         if (this.image !== this.sprites.idle.image) {
@@ -177,19 +214,34 @@ class Fighter extends Sprite {
           this.currentFrame = 0;
         }
         break;
-        case "attack1":
-          if (this.image !== this.sprites.attack1.image) {
-            this.image = this.sprites.attack1.image;
-            this.frames = this.sprites.attack1.frames;
-            this.currentFrame = 0;
-          }
+      case "attack1":
+        if (this.image !== this.sprites.attack1.image) {
+          this.image = this.sprites.attack1.image;
+          this.frames = this.sprites.attack1.frames;
+          this.currentFrame = 0;
+        }
         break;
-        case "attack2":
-          if (this.image !== this.sprites.attack2.image) {
-            this.image = this.sprites.attack2.image;
-            this.frames = this.sprites.attack2.frames;
-            this.currentFrame = 0;
-          }
+      case "attack2":
+        if (this.image !== this.sprites.attack2.image) {
+          this.image = this.sprites.attack2.image;
+          this.frames = this.sprites.attack2.frames;
+          this.currentFrame = 0;
+        }
+        break;
+      case "takeHit":
+        if (this.image !== this.sprites.takeHit.image) {
+          this.image = this.sprites.takeHit.image;
+          this.frames = this.sprites.takeHit.frames;
+          this.currentFrame = 0;
+        }
+        break;
+      case "death":
+        if (this.image !== this.sprites.death.image) {
+          this.image = this.sprites.death.image;
+          this.frames = this.sprites.death.frames;
+          this.currentFrame = 0;
+        }
+        break;
     }
   }
 }
